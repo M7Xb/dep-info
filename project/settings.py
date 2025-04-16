@@ -59,7 +59,7 @@ TEMPLATES = [
 
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('postgresql://dep_info_user:D4780OeesktIxMLMZyZmVLyA5ryqJuYo@dpg-cvvuttjuibrs73bqmifg-a/dep_info'))
+    'default': dj_database_url.config(default=os.environ.get('postgresql://depar_info_user:D4780OeesktIxMLMZyZmVLyA5ryqJuYo@dpg-cvvuttjuibrs73bqmifg-a/dep_info'))
 }
 
 AUTH_USER_MODEL = 'accounts.User'  # Add back the AUTH_USER_MODEL setting
@@ -68,7 +68,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 #
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'dep-info-4.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'department-info.onrender.com']
 
 # Use environment variables for sensitive data
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
