@@ -54,15 +54,10 @@ TEMPLATES = [
     },
 ]
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dep-info',  # Replace with your database name
-        'USER': 'postgres',    # Default PostgreSQL user
-        'PASSWORD': 'admin123',  # Replace with your PostgreSQL password
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(default=os.environ.get('postgresql://dep_info_user:D4780OeesktIxMLMZyZmVLyA5ryqJuYo@dpg-cvvuttjuibrs73bqmifg-a/dep_info'))
 }
 
 AUTH_USER_MODEL = 'accounts.User'  # Add back the AUTH_USER_MODEL setting
