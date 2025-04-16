@@ -1,0 +1,654 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Messages Container -->
+<div id="alertContainer">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Full Page Loading Spinner (now starts below navbar) -->
+<div id="full-page-spinner" class="full-page-loading">
+    <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+    </div>
+    <div class="loading-text">
+        <span>L</span><span>O</span><span>A</span><span>D</span><span>I</span><span>N</span><span>G</span>
+    </div>
+</div>
+
+<div class="container-fluid mt-4"> <!-- Changed to container-fluid for full width -->
+    <!-- Advertisements Section -->
+    {% if advertisements %}
+    <div class="ad-container mb-4">
+        <div class="ad-banner">
+            <div class="ad-title">ANNONCE</div>
+            <div class="ad-content">
+                <marquee direction="right" behavior="scroll" scrollamount="4">
+                    <span class="ad-text">
+                        {% for ad in advertisements %}
+                            {{ ad.description }}{% if not forloop.last %} • {% endif %}
+                        {% endfor %}
+                    </span>
+                </marquee>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <style>
+   
+
+    .ad-content {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .ad-content marquee {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    .ad-text {
+        color: red;
+        font-weight: bold;
+        font-size: 1.2rem;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    </style>
+
+    <!-- Spinner (outside main container) -->
+    <div id="announcements-spinner" class="loading-container" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        <div class="loading-text">
+            <span>L</span><span>O</span><span>A</span><span>D</span><span>I</span><span>N</span><span>G</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Announcements Header -->
+        <h2 class="text-center mb-4">TABLEAU D'AFFICHAGES ({{ announcements.count }} / TOTAL DE {{ announcements.paginator.count }})</h2>
+
+        <!-- Filter Bar -->
+        <div class="filter-section">
+            <div class="dropdown-section">
+                <select id="group-filter" onchange="filterAnnouncements(this.value)">
+                    <option value="?group={{ all_groups.id }}" 
+                        {% if selected_group == all_groups.id|stringformat:'s' %}selected{% endif %}>
+                        {{ all_groups.name }}
+                    </option>
+                    {% for group in groups %}
+                        <option value="?group={{ group.id }}" 
+                            {% if selected_group == group.id|stringformat:'s' %}selected{% endif %}>
+                            {{ group.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Announcements Content -->
+        <div id="announcements-content">
+            {% if announcements %}
+                {% for announcement in announcements %}
+                    <div class="announcement-box">
+                        <div class="announcement-header">
+                            <div class="admin-label">
+                                {{ announcement.created_by.first_name }} {{ announcement.created_by.last_name }}
+                            </div>
+                            <div class="date-info">le : {{ announcement.created_at|date:"d/m/Y" }}</div>
+                            {% if announcement.group %}
+                                <div class="group-info">Affichage pour: 
+                                    <span class="group-label">{{ announcement.group.name }}</span>
+                                </div>
+                                <div class="divider-line"></div>
+                            {% endif %}
+                        </div>
+                        <div class="announcement-content">
+                            <div class="title-section">
+                                <h3>{{ announcement.title }}</h3>
+                            </div>
+                            <div class="description-section">
+                                {{ announcement.description|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Debug info -->
+                <div class="debug-info" style="display: none;">
+                    <p>Total pages: {{ announcements.paginator.num_pages }}</p>
+                    <p>Current page: {{ announcements.number }}</p>
+                    <p>Has next: {{ announcements.has_next }}</p>
+                    <p>Has previous: {{ announcements.has_previous }}</p>
+                </div>
+
+                <!-- Pagination -->
+                {% if announcements.paginator.num_pages > 1 %}
+                <div class="pagination-container">
+                    <ul class="pagination justify-content-center">
+                        {% for num in announcements.paginator.page_range %}
+                            <li class="page-item {% if announcements.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if selected_group %}&group={{ selected_group }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="no-announcements">
+                    No announcements available.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modified Full Page Loading Styles to start below navbar */
+    .full-page-loading {
+        position: fixed;
+        top: var(--navbar-height); /* Start below navbar */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 999; /* Lower than navbar's z-index of 1000 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Announcements Loading Styles */
+    .announcements-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 998; /* Lower than both navbar and full-page spinner */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .container {
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .announcement-box {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        max-width: 750px;
+        margin-left: auto;
+        margin-right: auto;
+        overflow: hidden;
+    }
+
+    .announcement-header {
+        margin-bottom: 15px;
+    }
+
+    .admin-label {
+        color: #2980b9;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    .date-info {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 2px;
+    }
+
+    .group-info {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 2px;
+    }
+
+    .group-label {
+        background-color: #3498db;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 0.9rem;
+    }
+
+    .announcement-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .title-section {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .title-section h3 {
+        color: #2980b9;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .description-section {
+        width: 100%;
+        text-align: center;
+        color: #333;
+        line-height: 1.6;
+        font-size: 1rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+    }
+
+    /* Make sure the text breaks properly */
+    .description-section p {
+        margin: 0;
+        width: 100%;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Filter section styles */
+    .filter-section {
+        margin: 20px auto;  /* Changed from '20px 0' to center it */
+        text-align: center;
+        width: 100%;
+        padding: 0 15px;  /* Add padding for mobile */
+    }
+
+    .dropdown-section {
+        width: 100%;
+        max-width: 600px;  /* Maximum width on larger screens */
+        margin: 0 auto;    /* Center the dropdown */
+    }
+
+    .dropdown-section select {
+        width: 100%;       /* Make select full width of its container */
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 1rem;
+        background-color: white;
+        cursor: pointer;
+        -webkit-appearance: none;  /* Remove default styling on iOS */
+        -moz-appearance: none;     /* Remove default styling on Firefox */
+        appearance: none;          /* Remove default arrow */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 1em;
+        padding-right: 30px;  /* Space for the custom arrow */
+    }
+
+    .dropdown-section select:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .dropdown-section {
+            max-width: 100%;  /* Full width on mobile */
+        }
+
+        .dropdown-section select {
+            font-size: 0.9rem;  /* Slightly smaller font on mobile */
+            padding: 10px;      /* Larger padding for better touch targets */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .filter-section {
+            padding: 0 10px;
+        }
+
+        .dropdown-section select {
+            font-size: 0.85rem;
+        }
+    }
+
+    .no-announcements {
+        text-align: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        color: #666;
+    }
+
+    .divider-line {
+        width: 100%;
+        height: 1px;
+        background-color: #e2e8f0;
+        margin-top: 10px;
+    }
+
+    .pagination-container {
+        margin-top: 30px;
+        margin-bottom: 20px;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 5px;
+    }
+
+    .pagination .page-item {
+        list-style: none;
+    }
+
+    .pagination .page-link {
+        color: #0d6efd;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        padding: 8px 12px;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #0a58ca;
+    }
+
+    .pagination .page-item:not(.active) .page-link {
+        background-color: #fff;
+    }
+
+    /* Loading Spinner Styles */
+    .loading-container {
+        position: fixed; /* Changed from absolute to fixed */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: transparent;
+        z-index: 9999; /* Increased z-index to ensure it's above everything */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none; /* Allows clicking through the spinner */
+    }
+
+    /* Make sure the container has a relative position */
+    .container.mt-4 {
+        position: relative;
+    }
+
+    .loading-spinner {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 20px;
+    }
+
+    .spinner-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 4px solid transparent;
+        border-top-color: #3B5998;
+        animation: spin 1.2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Add delay to each subsequent ring */
+    .spinner-ring:nth-child(1) { animation-delay: 0s; }
+    .spinner-ring:nth-child(2) { animation-delay: 0.3s; }
+    .spinner-ring:nth-child(3) { animation-delay: 0.6s; }
+    .spinner-ring:nth-child(4) { animation-delay: 0.9s; }
+
+    .loading-text {
+        margin-top: 20px;
+        font-family: 'Arial', sans-serif;
+        font-size: 1.2rem;
+        color: #3B5998;
+        letter-spacing: 8px;
+    }
+
+    .loading-text span {
+        display: inline-block;
+        animation: pulse 1s ease-in-out infinite;
+    }
+
+    .loading-text span:nth-child(2) { animation-delay: 0.1s; }
+    .loading-text span:nth-child(3) { animation-delay: 0.2s; }
+    .loading-text span:nth-child(4) { animation-delay: 0.3s; }
+    .loading-text span:nth-child(5) { animation-delay: 0.4s; }
+    .loading-text span:nth-child(6) { animation-delay: 0.5s; }
+    .loading-text span:nth-child(7) { animation-delay: 0.6s; }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-10px);
+            opacity: 0.5;
+        }
+    }
+
+    /* Modified advertisement styles */
+    .ad-container {
+        width: 100%;
+        background: #fff;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .ad-banner {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        position: relative;
+        height: 40px;
+    }
+
+    .ad-title {
+        background: #6897fd;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-right: 15px;
+        z-index: 2;
+        position: relative;
+    }
+
+    .ad-content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        width: 100%;
+        padding-left: 150px;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .ad-text {
+        white-space: nowrap;
+        color: red;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+        position: absolute;
+        animation: scrollText 20s linear infinite;
+        width: max-content;
+    }
+
+    .ad-item {
+        display: inline-block;
+    }
+
+    @keyframes scrollText {
+        0% {
+            transform: translateX(100%);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Handle initial page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const fullPageSpinner = document.getElementById('full-page-spinner');
+        
+        // Hide full page spinner after content loads
+        setTimeout(() => {
+            fullPageSpinner.style.opacity = '0';
+            fullPageSpinner.style.transition = 'opacity 0.5s ease-out';
+            
+            setTimeout(() => {
+                fullPageSpinner.style.display = 'none';
+            }, 500);
+        }, 1000);
+    });
+
+    // Handle group filtering
+    function filterAnnouncements(value) {
+        const spinner = document.getElementById('announcements-spinner');
+        const announcementsContent = document.getElementById('announcements-content');
+        
+        // Hide content completely and show spinner
+        if (spinner && announcementsContent) {
+            spinner.style.display = 'flex';
+            announcementsContent.style.display = 'none';
+        }
+
+        // Get the current URL and update only the 'group' parameter
+        const url = new URL(window.location.href);
+        
+        // Clear the group parameter if empty value (all groups)
+        if (!value) {
+            url.searchParams.delete('group');
+        } else {
+            const groupId = value.split('=')[1];
+            url.searchParams.set('group', groupId);
+        }
+
+        // Reset to first page when filtering
+        url.searchParams.set('page', '1');
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                setTimeout(() => {
+                    try {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newContent = doc.querySelector('#announcements-content').innerHTML;
+                        announcementsContent.innerHTML = newContent;
+                        window.history.pushState({}, '', url);
+                    } catch (error) {
+                        console.error('Error updating content:', error);
+                    } finally {
+                        if (spinner && announcementsContent) {
+                            spinner.style.display = 'none';
+                            announcementsContent.style.display = 'block';
+                        }
+                    }
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                if (spinner && announcementsContent) {
+                    spinner.style.display = 'none';
+                    announcementsContent.style.display = 'block';
+                }
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const adText = document.querySelector('.ad-text');
+        if (!adText) return;
+
+        function updateAnimation() {
+            const textWidth = adText.offsetWidth;
+            const containerWidth = adText.parentElement.offsetWidth;
+            const duration = Math.max(10, (textWidth / containerWidth) * 10); // Reduced from 20 to 10
+            
+            adText.style.animation = 'none';
+            adText.offsetHeight; // Trigger reflow
+            adText.style.animation = `scrollText ${duration}s linear infinite`;
+        }
+
+        updateAnimation();
+        window.addEventListener('resize', updateAnimation);
+    });
+</script>
+{% endblock %}
+
+
+
+

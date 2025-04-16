@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Timetable{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/admin-dashboard.css' %}" rel="stylesheet">
+<style>
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f3f4f6;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 2rem;
+        /* margin-left: 250px; */
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-collapsed .main-content {
+        margin-left: 64px;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .required::after {
+        content: "*";
+        color: #dc2626;
+        margin-left: 4px;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .help-text {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-secondary {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e5e7eb;
+    }
+
+    .file-upload-wrapper {
+        position: relative;
+        border: 2px dashed #d1d5db;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .file-upload-wrapper:hover {
+        border-color: #3b82f6;
+    }
+
+    .file-upload-icon {
+        font-size: 2rem;
+        color: #6b7280;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-text {
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .invalid-feedback {
+        display: none;
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-select:invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    
+    <div class="main-content">
+        <div class="form-container">
+            <div class="page-header">
+                <h1 class="page-title">Upload Timetable</h1>
+                <a href="{% url 'admin_dashboard:timetable_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="group" class="form-label required">Select Group</label>
+                    <select class="form-select" id="group" name="group" required>
+                        <option value="">Choose a group...</option>
+                        {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a group
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pdf_file" class="form-label required">PDF File</label>
+                    <div class="file-upload-wrapper">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="file-upload-text">
+                            Drag and drop your PDF file here or click to browse
+                        </div>
+                        <input type="file" 
+                               class="form-control" 
+                               id="pdf_file" 
+                               name="pdf_file" 
+                               accept=".pdf"
+                               required>
+                    </div>
+                    <div class="help-text">
+                        Only PDF files are allowed
+                    </div>
+                    <div class="invalid-feedback">
+                        Please select a PDF file
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i>
+                        Upload Timetable
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Reset Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+
+    // File upload preview
+    const fileInput = document.getElementById('pdf_file')
+    const fileText = document.querySelector('.file-upload-text')
+    
+    fileInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            fileText.textContent = this.files[0].name
+        } else {
+            fileText.textContent = 'Drag and drop your PDF file here or click to browse'
+        }
+    })
+
+    // Drag and drop functionality
+    const dropZone = document.querySelector('.file-upload-wrapper')
+    
+    ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false)
+    })
+
+    function preventDefaults (e) {
+        e.preventDefault()
+        e.stopPropagation()
+    }
+
+    ;['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false)
+    })
+
+    ;['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false)
+    })
+
+    function highlight(e) {
+        dropZone.classList.add('border-blue-500')
+    }
+
+    function unhighlight(e) {
+        dropZone.classList.remove('border-blue-500')
+    }
+
+    dropZone.addEventListener('drop', handleDrop, false)
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer
+        const files = dt.files
+
+        fileInput.files = files
+        if (files && files[0]) {
+            fileText.textContent = files[0].name
+        }
+    }
+})()
+</script>
+{% endblock %}

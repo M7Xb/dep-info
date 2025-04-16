@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Announcement{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/admin-dashboard.css' %}" rel="stylesheet">
+<style>
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f3f4f6;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 2rem;
+        /* margin-left: 250px; */
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-collapsed .main-content {
+        margin-left: 64px;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+        max-width: 800px;
+        margin: 0 auto;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .required::after {
+        content: "*";
+        color: #dc2626;
+        margin-left: 4px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .help-text {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-secondary {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e5e7eb;
+    }
+
+    .invalid-feedback {
+        display: none;
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .was-validated .form-control:invalid ~ .invalid-feedback,
+    .was-validated .form-select:invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+
+    .alert-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+
+    .rich-editor {
+        min-height: 200px;
+        resize: vertical;
+    }
+
+    .textarea-container {
+        position: relative;
+        height: 200px; /* Fixed height for the container */
+        margin-bottom: 10px;
+    }
+
+    .custom-textarea {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        resize: none;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .custom-textarea:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    /* Custom scrollbar styling */
+    .custom-textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .custom-textarea::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .custom-textarea::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .custom-textarea::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Form group spacing */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .form-label.required::after {
+        content: "*";
+        color: red;
+        margin-left: 4px;
+    }
+
+    .help-text {
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .sidebar-collapsed .main-content {
+            margin-left: 0;
+        }
+
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+   
+    
+    <div class="main-content">
+        <div class="form-container">
+            <div class="page-header">
+                <h1 class="page-title">Create Announcement</h1>
+                <a href="{% url 'admin_dashboard:announcement_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to List</span>
+                </a>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="title" class="form-label required">Title</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="title" 
+                           name="title" 
+                           placeholder="Enter announcement title"
+                           required>
+                    <div class="help-text">
+                        Choose a clear and concise title for your announcement
+                    </div>
+                    <div class="invalid-feedback">
+                        Please provide a title for the announcement
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="group" class="form-label required">Group</label>
+                    <select class="form-select" id="group" name="group" required>
+                        <option value="">Select a group</option>
+                        {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="help-text">
+                        Select the group this announcement is intended for
+                    </div>
+                    <div class="invalid-feedback">
+                        Please select a group
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label required">Description</label>
+                    <div class="textarea-container">
+                        <textarea class="form-control custom-textarea" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="6" 
+                                  placeholder="Enter announcement description"
+                                  required></textarea>
+                    </div>
+                    <div class="help-text">
+                        Provide detailed information about your announcement
+                    </div>
+                    <div class="invalid-feedback">
+                        Please provide a description
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Create Announcement</span>
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        <span>Reset Form</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    'use strict'
+    
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+
+    // Auto-expanding textarea
+    const textarea = document.querySelector('.rich-editor')
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto'
+        this.style.height = (this.scrollHeight) + 'px'
+    })
+
+    // Character counter for title
+    const titleInput = document.getElementById('title')
+    titleInput.addEventListener('input', function() {
+        const maxLength = 100
+        const remaining = maxLength - this.value.length
+        const helpText = this.parentElement.querySelector('.help-text')
+        if (remaining < 20) {
+            helpText.textContent = `${remaining} characters remaining`
+            helpText.style.color = remaining < 10 ? '#dc2626' : '#92400e'
+        } else {
+            helpText.textContent = 'Choose a clear and concise title for your announcement'
+            helpText.style.color = '#6b7280'
+        }
+    })
+
+    // Alert auto-dismiss
+    const alerts = document.querySelectorAll('.alert')
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.opacity = '0'
+            setTimeout(() => alert.remove(), 300)
+        }, 5000)
+    })
+})()
+</script>
+{% endblock %}
+
+
+
+

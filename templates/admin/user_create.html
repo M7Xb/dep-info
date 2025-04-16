@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create User{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/admin-dashboard.css' %}" rel="stylesheet">
+<style>
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f3f4f6;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 2rem;
+        /* margin-left: 250px; */
+        transition: margin-left 0.3s ease;
+    }
+
+    .sidebar-collapsed .main-content {
+        margin-left: 64px;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 2.5rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .required::after {
+        content: "*";
+        color: #dc2626;
+        margin-left: 4px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+    .profile-image-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-image-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto 1rem;
+        border: 3px solid #e5e7eb;
+        position: relative;
+        background-color: #f3f4f6;
+    }
+
+    .profile-image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #9ca3af;
+    }
+
+    .profile-image-upload {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-image-upload input[type="file"] {
+        display: none;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .upload-btn:hover {
+        background-color: #e5e7eb;
+    }
+
+    .password-strength {
+        margin-top: 0.5rem;
+        height: 4px;
+        background-color: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s;
+    }
+
+    .password-strength-text {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-secondary {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e5e7eb;
+    }
+
+    .row {
+        display: flex;
+        gap: 2rem;
+        margin: 0 -1rem;
+    }
+
+    .col {
+        flex: 1;
+        padding: 0 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            padding: 1rem;
+        }
+
+        .row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+   
+    
+    <div class="main-content">
+        <div class="form-container">
+            <div class="page-header">
+                <h1 class="page-title">Create New User</h1>
+                <a href="{% url 'admin_dashboard:user_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to List</span>
+                </a>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="profile-image-container">
+                    <div class="profile-image-preview">
+                        <div class="profile-image-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <img src="" alt="Profile Preview" style="display: none;">
+                    </div>
+                    <div class="profile-image-upload">
+                        <label for="profile_image" class="upload-btn">
+                            <i class="fas fa-camera"></i>
+                            <span>Upload Photo</span>
+                        </label>
+                        <input type="file" 
+                               id="profile_image" 
+                               name="profile_image" 
+                               accept="image/*">
+                    </div>
+                    <div class="help-text">Recommended: Square image, max 5MB</div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <div class="form-section">
+                            <h3 class="section-title">Personal Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="first_name" class="form-label required">First Name</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="first_name" 
+                                       name="first_name" 
+                                       required>
+                                <div class="invalid-feedback">Please enter first name</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="last_name" class="form-label required">Last Name</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="last_name" 
+                                       name="last_name" 
+                                       required>
+                                <div class="invalid-feedback">Please enter last name</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label required">Email Address</label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       required>
+                                <div class="invalid-feedback">Please enter a valid email address</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="form-section">
+                            <h3 class="section-title">Account Settings</h3>
+
+                            <div class="form-group">
+                                <label for="password" class="form-label required">Password</label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       required>
+                                <div class="password-strength">
+                                    <div class="password-strength-bar"></div>
+                                </div>
+                                <div class="password-strength-text"></div>
+                                <div class="invalid-feedback">Please enter a password</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label required">Confirm Password</label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirm_password" 
+                                       name="confirm_password" 
+                                       required>
+                                <div class="invalid-feedback">Passwords do not match</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role" class="form-label required">Role</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="">Select a role</option>
+                                    <option value="user">User</option>
+                                    <option value="teacher">Teacher</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a role</div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           class="form-check-input" 
+                                           id="is_active" 
+                                           name="is_active" 
+                                           checked>
+                                    <label class="form-check-label" for="is_active">
+                                        Active Account
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create User</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const profileImage = document.getElementById('profile_image');
+    const imagePreview = document.querySelector('.profile-image-preview img');
+    const imagePlaceholder = document.querySelector('.profile-image-placeholder');
+    const passwordStrengthBar = document.querySelector('.password-strength-bar');
+    const passwordStrengthText = document.querySelector('.password-strength-text');
+
+    // Profile image preview and validation
+    profileImage.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Validate file size (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                this.value = '';
+                imagePreview.style.display = 'none';
+                imagePlaceholder.style.display = 'block';
+                return;
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Only JPEG, PNG and GIF images are allowed');
+                this.value = '';
+                imagePreview.style.display = 'none';
+                imagePlaceholder.style.display = 'block';
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                imagePlaceholder.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Password strength checker
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        const patterns = {
+            length: password.length >= 8,
+            lowercase: /[a-z]/.test(password),
+            uppercase: /[A-Z]/.test(password),
+            numbers: /\d/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        strength = Object.values(patterns).filter(Boolean).length;
+
+        const strengthColors = ['#dc2626', '#f59e0b', '#10b981'];
+        const strengthTexts = ['Weak', 'Medium', 'Strong'];
+        
+        const strengthIndex = Math.min(Math.floor(strength / 2), 2);
+        const percentage = ((strength / 5) * 100).toFixed(0) + '%';
+        
+        passwordStrengthBar.style.width = percentage;
+        passwordStrengthBar.style.backgroundColor = strengthColors[strengthIndex];
+        passwordStrengthText.textContent = strengthTexts[strengthIndex];
+        passwordStrengthText.style.color = strengthColors[strengthIndex];
+    }
+
+    password.addEventListener('input', function() {
+        checkPasswordStrength(this.value);
+    });
+
+    // Form validation
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+            event.preventDefault();
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+
+        form.classList.add('was-validated');
+    });
+
+    // Clear custom validity on input
+    confirmPassword.addEventListener('input', function() {
+        if (password.value === this.value) {
+            this.setCustomValidity('');
+        } else {
+            this.setCustomValidity('Passwords do not match');
+        }
+    });
+});
+</script>
+{% endblock %}
+
+

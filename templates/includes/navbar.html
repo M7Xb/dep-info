@@ -1,0 +1,158 @@
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="fas fa-cube"></i>
+            Dep-Info
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <!-- Home link -->
+                {% if request.path != '/' and request.path != '/accounts/login/' and request.path != '/accounts/register/' %}
+                    <li class="nav-item ms-4">
+                        <a href="{% url 'home' %}" class="nav-link">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                {% endif %}
+
+                <!-- Show Dashboard and Timetables links on home page -->
+                {% if request.path == '/' %}
+                    {% if user.is_authenticated and user.is_staff or user.role == 'teacher' %}
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:dashboard' %}" class="nav-link">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item ms-4">
+                        <a href="{% url 'timetables' %}" class="nav-link">
+                            <i class="fas fa-calendar-alt"></i> Time Tables
+                        </a>
+                    </li>
+                {% endif %}
+                
+                <!-- Dashboard Navigation Links - Only show if in dashboard section -->
+                {% if user.is_authenticated and 'dashboard' in request.path %}
+                    {% if user.is_staff or user.role == 'teacher' %}
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                        </li>
+                        
+                        {% if user.is_staff %}
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:user_list' %}" class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}">
+                                <i class="fas fa-users"></i> Users
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:announcement_list' %}" class="nav-link {% if request.resolver_match.url_name == 'announcement_list' %}active{% endif %}">
+                                <i class="fas fa-bullhorn"></i> Announcements
+                            </a>
+                        </li>
+                        
+                        {% if user.is_staff %}
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:group_list' %}" class="nav-link {% if request.resolver_match.url_name == 'group_list' %}active{% endif %}">
+                                <i class="fas fa-users-cog"></i> Groups
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:ad_list' %}" class="nav-link {% if request.resolver_match.url_name == 'ad_list' %}active{% endif %}">
+                                <i class="fas fa-ad"></i> Ads
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item ms-4">
+                            <a href="{% url 'admin_dashboard:timetable_list' %}" class="nav-link {% if request.resolver_match.url_name == 'timetable_list' %}active{% endif %}">
+                                <i class="fas fa-calendar-alt"></i> Timetables
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </ul>
+
+            {% if request.path == '/accounts/login/' or request.path == '/accounts/register/' %}
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            {% else %}
+                <div class="dropdown">
+                    <a href="#" class="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if user.is_authenticated %}
+                            <div class="profile-info text-end">
+                                <h6>{{ user.first_name }}</h6>
+                                {% if user.is_staff %}
+                                    <span>Administrator</span>
+                                {% else %}
+                                    <span>{{ user.role|title }}</span>
+                                {% endif %}
+                            </div>
+                            {% if user.profile_image_data %}
+                                <img src="{{ user.get_profile_image_url }}" alt="Profile Picture" 
+                                     class="profile-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <div class="profile-circle">
+                                    {% if user.first_name %}
+                                        {{ user.first_name|make_list|first|upper }}
+                                    {% else %}
+                                        {{ user.email|make_list|first|upper }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="profile-circle guest">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if user.is_authenticated %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                    <i class="fas fa-user me-2"></i>My Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:login' %}">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'accounts:register' %}">
+                                    <i class="fas fa-user-plus me-2"></i>Register
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-content">
+            <!-- Left side - Image -->
+            <div class="register-image">
+                <img src="{% static 'images/signup.jpg' %}" alt="Register">
+            </div>
+            
+            <!-- Right side - Form -->
+            <div class="register-form">
+                <h2 class="register-title">Hello user welcome to our website</h2>
+                <p class="register-subtitle">We are happy to have you come here.</p>
+
+                <form method="post" class="registration-form" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" name="first_name" class="form-input" placeholder="your first name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" name="last_name" class="form-input" placeholder="your last name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-input" placeholder="Email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password1" class="form-input" placeholder="Password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password" name="password2" class="form-input" placeholder="Repeat Password" required>
+                    </div>
+
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="showPassword">
+                        <label for="showPassword">Show password</label>
+                    </div>
+
+                    <button type="submit" class="register-button">Register</button>
+
+                    <p class="login-link">
+                        Already have an account? 
+                        <a href="{% url 'accounts:login' %}">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.register-container {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.register-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+.register-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem;
+}
+
+.register-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.register-form {
+    flex: 1;
+    padding: 1rem;
+}
+
+.register-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: white;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+.checkbox label {
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.register-button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.register-button:hover {
+    background-color: #2563eb;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #4b5563;
+    font-size: 0.95rem;
+}
+
+.login-link a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .register-content {
+        flex-direction: column;
+        padding: 2rem;
+    }
+
+    .register-image, 
+    .register-form {
+        width: 100%;
+    }
+
+    .register-card {
+        margin: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide password functionality
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    const password1Input = document.querySelector('input[name="password1"]');
+    const password2Input = document.querySelector('input[name="password2"]');
+
+    showPasswordCheckbox.addEventListener('change', function() {
+        // Toggle type for both password fields
+        password1Input.type = this.checked ? 'text' : 'password';
+        password2Input.type = this.checked ? 'text' : 'password';
+    });
+
+    // Form validation
+    const form = document.querySelector('form');
+    const password1 = document.querySelector('input[name="password1"]');
+    const password2 = document.querySelector('input[name="password2"]');
+
+    // Function to show custom alert
+    function showAlert(message, type) {
+        const alertHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show fade-in d-flex align-items-center" role="alert">
+                <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle me-2"></i>
+                <div>${message}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = alertHTML;
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            const alert = alertContainer.querySelector('.alert');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+
+    // Form submission handling
+    form.addEventListener('submit', function(event) {
+        let hasError = false;
+        
+        // Clear previous alerts
+        document.getElementById('alertContainer').innerHTML = '';
+
+        // Validate passwords match
+        if (password1.value !== password2.value) {
+            event.preventDefault();
+            showAlert('Passwords do not match!', 'danger');
+            hasError = true;
+        }
+
+        // Validate password strength
+        if (password1.value.length < 8) {
+            event.preventDefault();
+            showAlert('Password must be at least 8 characters long!', 'danger');
+            hasError = true;
+        }
+
+        // Validate email format
+        const email = document.querySelector('input[name="email"]');
+        if (email && !email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            event.preventDefault();
+            showAlert('Please enter a valid email address!', 'danger');
+            hasError = true;
+        }
+
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                event.preventDefault();
+                showAlert('Please fill in all required fields!', 'danger');
+                hasError = true;
+            }
+        });
+
+        if (!hasError) {
+            // If no client-side errors, let the form submit
+            // Server-side messages will be handled by Django messages framework
+        }
+    });
+
+    // Auto-hide existing alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}
+
+
+
+
+
+

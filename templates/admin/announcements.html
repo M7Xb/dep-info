@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <h4 class="page-title m-0">Announcements</h4>
+                {% if user.is_staff or user.is_superuser %}
+                <div>
+                    <a href="{% url 'admin_dashboard:create_announcement' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        <span>New Announcement</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Created By</th>
+                                    <th>Created At</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for announcement in announcements %}
+                                <tr>
+                                    <td class="text-break">{{ announcement.title }}</td>
+                                    <td>{{ announcement.created_by.get_full_name }}</td>
+                                    <td>{{ announcement.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if announcement.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-info" 
+                                                    onclick="viewAnnouncement('{{ announcement.id }}')"
+                                                    title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <a href="{% url 'admin_dashboard:edit_announcement' announcement.id %}" 
+                                               class="btn btn-sm btn-success"
+                                               title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    onclick="deleteAnnouncement('{{ announcement.id }}')"
+                                                    title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal -->
+<div class="custom-modal" id="viewModal">
+    <div class="custom-modal-header">
+        <h3 class="custom-modal-title">Announcement Details</h3>
+        <button class="custom-modal-close" onclick="closeViewModal()">&times;</button>
+    </div>
+    <div class="custom-modal-body" id="announcementDetails">
+        <!-- Content will be populated dynamically -->
+    </div>
+    <div class="custom-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeViewModal()">Close</button>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="custom-modal" id="deleteModal">
+    <h4>Confirm Delete</h4>
+    <p>Are you sure you want to delete this announcement?</p>
+    <div class="modal-buttons">
+        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+    </div>
+</div>
+
+<!-- Shared Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container-fluid {
+        margin-top: 6rem; /* Increased top margin */
+    }
+
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table th {
+        background: #f8f9fa;
+        padding: 1rem;
+        white-space: nowrap;
+    }
+
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .badge {
+        padding: 0.5em 1em;
+    }
+
+    .btn-sm {
+        padding: 0.4rem;
+        line-height: 1;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .container-fluid {
+            margin-top: 5rem;
+            padding: 0.5rem;
+        }
+
+        .table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            min-width: 120px; /* Ensure minimum width for columns */
+        }
+
+        .btn-sm {
+            padding: 0.3rem;
+        }
+
+        .badge {
+            padding: 0.4em 0.8em;
+            font-size: 0.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .container-fluid {
+            margin-top: 4rem;
+            padding: 0.25rem;
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            min-width: 100px;
+        }
+
+        .btn-sm {
+            padding: 0.25rem;
+        }
+
+        .btn-sm i {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Keep the original modal styles */
+    .custom-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+        width: 90%;
+        z-index: 1001;
+        display: none;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+    }
+
+    /* Detail styles */
+    .detail-row {
+        margin-bottom: 1rem;
+    }
+
+    .detail-row strong {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .scrollable-description {
+        max-height: 150px;
+        overflow-y: auto;
+        padding: 1rem;
+        background-color: var(--bs-gray-100);
+        border-radius: 0.375rem;
+        border: 1px solid var(--bs-gray-200);
+    }
+
+    /* Responsive styles using Bootstrap breakpoints */
+    @media (max-width: 767.98px) {
+        .table-responsive {
+            border: 0;
+        }
+
+        .btn-sm {
+            padding: 0.3rem 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+
+        .custom-modal {
+            width: 95%;
+            padding: 15px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .table td, .table th {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewAnnouncement(announcementId) {
+    fetch(`/dashboard/api/announcements/${announcementId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const details = document.getElementById('announcementDetails');
+            details.innerHTML = `
+                <div class="detail-row">
+                    <strong>Title:</strong> ${data.title}
+                </div>
+                <div class="detail-row">
+                    <strong>Description:</strong> 
+                    <div class="scrollable-description">
+                        <p>${data.description}</p>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <strong>Created By:</strong> ${data.created_by}
+                </div>
+                <div class="detail-row">
+                    <strong>Created At:</strong> ${data.created_at}
+                </div>
+                <div class="detail-row">
+                    <strong>Group:</strong> ${data.group || 'All Groups'}
+                </div>
+                <div class="detail-row">
+                    <strong>Status:</strong> 
+                    <span class="status-badge ${data.is_active ? 'active' : 'inactive'}">
+                        ${data.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                </div>
+            `;
+            
+            document.getElementById('viewModal').style.display = 'block';
+            document.getElementById('modalOverlay').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading announcement details');
+        });
+}
+
+function closeViewModal() {
+    const modal = document.getElementById('viewModal');
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }, 300);
+}
+
+function deleteAnnouncement(announcementId) {
+    const modal = document.getElementById('deleteModal');
+    const confirmBtn = document.getElementById('confirmDelete');
+    confirmBtn.onclick = function() {
+        window.location.href = `/dashboard/announcements/${announcementId}/delete/`;
+    };
+    modal.style.display = 'block';
+    setTimeout(() => modal.classList.add('active'), 10);
+    document.getElementById('modalOverlay').style.display = 'block';
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }, 300);
+}
+
+// Close modal when clicking overlay
+document.getElementById('modalOverlay').addEventListener('click', function() {
+    closeDeleteModal();
+    closeViewModal();
+});
+
+// Close modal when pressing ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeDeleteModal();
+        closeViewModal();
+    }
+});
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+
+// Add touch event handling for mobile
+document.addEventListener('touchstart', function() {}, true);
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
