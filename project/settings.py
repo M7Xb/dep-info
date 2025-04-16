@@ -68,7 +68,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 #
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app-name.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'dep-info-4.onrender.com']
 
 # Use environment variables for sensitive data
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
