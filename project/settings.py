@@ -72,11 +72,11 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Add these basic settings as well
-SECRET_KEY = 'your-secret-key-here'  # Replace with a secure secret key
-DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']  # Add your domain when deploying
+DEBUG = False
+ALLOWED_HOSTS = ['your-app-name.onrender.com']  # Replace with your Render app URL
 
-
+# Use environment variables for sensitive data
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 
 if not os.environ.get('DJANGO_SKIP_DB_CREATE', False):
@@ -97,16 +97,5 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
-
-
-
-
-
-
-
-
-
 
 

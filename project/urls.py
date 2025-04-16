@@ -12,12 +12,12 @@ urlpatterns = [
     path('', home_view, name='home'),
     path('timetables/', timetables_view, name='timetables'),
     path('timetables/<int:timetable_id>/view/', view_timetable_public, name='view_timetable'),
-    # Move this to admin_dashboard/urls.py
     path('dashboard/users/api/<int:user_id>/', views.user_detail_api, name='user_detail_api'),
-] 
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 
 
