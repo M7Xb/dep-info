@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 import dj_database_url
 import psycopg2  # Import psycopg2 for database connection
-
+import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
@@ -29,10 +29,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Add these settings
-CSRF_COOKIE_SECURE = True  # for HTTPS
-CSRF_COOKIE_HTTPONLY = True
-CSRF_USE_SESSIONS = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 ROOT_URLCONF = 'project.urls'
 
@@ -54,7 +56,7 @@ TEMPLATES = [
     },
 ]
 
-import dj_database_url
+
 
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('postgresql://dep_info_user:D4780OeesktIxMLMZyZmVLyA5ryqJuYo@dpg-cvvuttjuibrs73bqmifg-a/dep_info'))
@@ -75,28 +77,12 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
 
 # Static files configuration
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (User uploaded files)
+# Media files configuration
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Test database connection
-try:
-    conn = psycopg2.connect(
-        dbname="dep-info",
-        user="postgres",
-        password="admin123",
-        host="localhost",
-        port="5432"
-    )
-    print("Connection successful!")
-    conn.close()
-except Exception as e:
-    print(f"Failed to connect to the database: {e}")
 
 
 
