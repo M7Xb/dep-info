@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import dj_database_url
+import psycopg2  # Import psycopg2 for database connection
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -54,15 +56,12 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'project_db',
-        'USER': 'root',
-        'PASSWORD': 'mouad123',  # Use the password you set during installation
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dep-info',  # Replace with your database name
+        'USER': 'postgres',    # Default PostgreSQL user
+        'PASSWORD': 'admin123',  # Replace with your PostgreSQL password
         'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'PORT': '5432',
     }
 }
 
@@ -72,19 +71,11 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Add these basic settings as well
-DEBUG = False
-ALLOWED_HOSTS = ['your-app-name.onrender.com']  # Replace with your Render app URL
+DEBUG = True
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app-name.onrender.com']
 
 # Use environment variables for sensitive data
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'fallback-secret-key')
-
-
-if not os.environ.get('DJANGO_SKIP_DB_CREATE', False):
-    try:
-        from .db_utils import create_database_if_not_exists
-        create_database_if_not_exists()
-    except Exception as e:
-        print(f"Failed to create database: {e}")
 
 
 # Static files configuration
@@ -97,5 +88,20 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Test database connection
+try:
+    conn = psycopg2.connect(
+        dbname="dep-info",
+        user="postgres",
+        password="admin123",
+        host="localhost",
+        port="5432"
+    )
+    print("Connection successful!")
+    conn.close()
+except Exception as e:
+    print(f"Failed to connect to the database: {e}")
+
 
 
