@@ -67,8 +67,7 @@ AUTH_USER_MODEL = 'accounts.User'  # Add back the AUTH_USER_MODEL setting
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# Add these basic settings as well
-DEBUG = True
+#
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'your-app-name.onrender.com']
 
 # Use environment variables for sensitive data
